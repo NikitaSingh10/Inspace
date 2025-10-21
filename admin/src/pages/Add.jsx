@@ -18,6 +18,7 @@ const Add = ({token}) => {
   const[category, setCategory] = useState('LIGHTING');
   const [subCategory, setSubCategory] =useState('LAMPS');
   const [bestseller, setBestseller] = useState(false);
+  const [modelFile, setModelFile] = useState(null);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -36,6 +37,8 @@ const Add = ({token}) => {
       image2 && formData.append("image2",image2)
       image3 && formData.append("image3",image3)
       image4 && formData.append("image4",image4)
+
+      modelFile && formData.append("modelFile",modelFile);
 
       const response = await axios.post(backendUrl + "/api/product/add", formData,{ headers:{ token }})
 
@@ -88,6 +91,12 @@ const Add = ({token}) => {
 
         </div>
       </div>
+
+      <div className='w-full'>
+        <p className='mb-2'>Upload 3D Model (.glb)</p>
+        <input type="file" accept=".glb" onChange={(e) => setModelFile(e.target.files[0])} />
+      </div>
+
       <div className='w-full'>
         <p className='mb-2'>Product Name</p>
         <input onChange={(e)=> setName(e.target.value)} value={name} className='w-full max-w-[500px] px-3 py-2' type="text" placeholder='Type here' required />

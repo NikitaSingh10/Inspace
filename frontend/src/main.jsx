@@ -5,6 +5,8 @@ import App from './App.jsx'
 import{BrowserRouter} from 'react-router-dom'
 import React from 'react'
 import ShopContextProvider  from './context/ShopContext.jsx'
+import "@google/model-viewer";
+
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>

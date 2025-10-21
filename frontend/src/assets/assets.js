@@ -18,6 +18,7 @@ import stripe_logo from './stripe_logo.png'
 import razorpay_logo from './razorpay_logo.png'
 import about_image from './about_image.jpg'
 import contact_image from './contact_image.jpeg'
+import simple_lamp from './simple_lamp.glb'
 
 export const assets ={
     Inspace_logo,
@@ -39,7 +40,8 @@ export const assets ={
     stripe_logo,
     razorpay_logo,
     about_image,
-    contact_image
+    contact_image,
+    simple_lamp
 }
 
 export const products=[

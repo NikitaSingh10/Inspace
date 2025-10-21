@@ -8,7 +8,9 @@ const productSchema = new mongoose.Schema({
     category: {type:String, required:true},
     subcategory: {type:String, required:true},
     bestseller:{type:Boolean},
-    date:{type:Number, required:true}
+    date:{type:Number, required:true},
+    modelUrl: { type: String, default: "" }
+    
 })
 
 const productModel =mongoose.models.product || mongoose.model("product", productSchema)

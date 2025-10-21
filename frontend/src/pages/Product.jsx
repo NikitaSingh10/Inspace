@@ -7,7 +7,7 @@ import RelatedProducts from '../components/RelatedProducts';
 const Product = () => {
 
 const{productId} = useParams();
-const{products,currency, addToCart} =useContext(ShopContext);
+const{products,currency, addToCart, viewinAr} =useContext(ShopContext);
 const[productData, setProductData]= useState(false);
 const[image , setImage] = useState("");
 
@@ -66,6 +66,13 @@ useEffect(()=>{
             </div>
             <div>
               <button onClick={()=>addToCart(productData._id)} className='bg-black text-white px-8 py-3 text-sm active:bg-gray-700' >ADD TO CART</button>
+              
+              {productData.modelUrl && (
+              <button onClick={()=>{
+                window.open(`/ar-viewer?model=${encodeURIComponent(productData.modelUrl)}&name=${encodeURIComponent(productData.name)}`, "_blank" );
+              }} 
+              className='bg-black text-white px-10 py-3 text-sm active:bg-gray-700' >VIEW IN AR</button>
+            )}
               <hr className='mt-8 sm:w-4/5' />
               <div className='text-sm text-gray-500 mt-5 flex flex-col gap-1'>
                 <p>100% Original product</p>
@@ -77,6 +84,9 @@ useEffect(()=>{
         </div>
 
       </div>
+
+      
+
       {/* -------Description and review section-------- */}
 
       <div className='mt-20'>

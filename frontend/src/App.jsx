@@ -12,8 +12,10 @@ import Login from './pages/Login';
 import Orders from './pages/Orders';
 import Footer from './components/Footer'
 import SearchBar from './components/SearchBar'
+import ProductPage from './pages/ProductPage'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ARViewer from './pages/ARViewer'
 
 const App = () => {
   return (
@@ -32,6 +34,8 @@ const App = () => {
         <Route path='/Login' element={<Login />}/>
         <Route path='/PlaceOrder' element={<PlaceOrder/>}/>
         <Route path='/Orders' element={<Orders/>}/>
+        <Route path="/product" element={<ProductPage />} /> 
+        <Route path="/ar-viewer" element={<ARViewer />} />
       </Routes>
       <Footer />
 

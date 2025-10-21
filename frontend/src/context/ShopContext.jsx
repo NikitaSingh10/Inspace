@@ -22,6 +22,14 @@ const ShopContextProvider= (props) =>{
 
     console.log('Backend URL:', backendUrl);
 
+    const viewinAr= async () => {
+        
+
+        const handleClick= () => {
+            navigate("/product");
+        };
+    }
+
     const addToCart= async (itemId) =>{
 
         let cartData= structuredClone(cartItems);
@@ -51,7 +59,6 @@ const ShopContextProvider= (props) =>{
         }
 
     }
-
 
     const getCartCount= () => {
         let totalCount =0;
@@ -136,7 +143,7 @@ const ShopContextProvider= (props) =>{
         products,currency,delivery_fee,search,setSearch,
         showSearch,setShowSearch,cartItems , addToCart , getCartCount,
         updateQuantity, getCartAmount, navigate, backendUrl,setToken,token,
-        setCartItems
+        setCartItems, viewinAr
 
     }
     return (

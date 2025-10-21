@@ -1,5 +1,6 @@
 import {v2 as cloudinary} from 'cloudinary'
 import productModel from '../models/productModel.js'
+import path from "path";
 
 //Funtion for adding product
 const addProduct = async (req,res) => {
@@ -11,6 +12,7 @@ const addProduct = async (req,res) => {
         const image2 = req.files?.image2?.[0];
         const image3 = req.files?.image3?.[0];
         const image4 = req.files?.image4?.[0];
+        
 
         const images =[image1,image2, image3 , image4].filter((item)=>item !== undefined)
 
@@ -22,6 +24,21 @@ const addProduct = async (req,res) => {
 
             })
         )
+
+        let modelUrl = "";
+        if (req.files.modelFile) {
+            const originalName = req.files.modelFile[0].originalname;  // e.g. "vase.glb"
+            const fileName = path.parse(originalName).name;            // e.g. "vase"
+
+            const result = await cloudinary.uploader.upload(req.files.modelFile[0].path, {
+             resource_type: "auto",
+             public_id: `models/${fileName}.glb`,   // 🔥 forces .glb extension in URL
+             format: "glb"
+         });
+
+         modelUrl = result.secure_url;
+        }   
+
         const productData ={
             name, 
             description,
@@ -30,6 +47,7 @@ const addProduct = async (req,res) => {
             subcategory,
             bestseller:bestseller === 'true' ? true : false,
             image:imagesUrl,
+            modelUrl: modelUrl,
             date: Date.now()
         }
 
