@@ -85,6 +85,25 @@ const registerUser = async (req, res)=> {
     }
 }
 
+//Route to get user profile
+const getUserProfile = async (req, res) => {
+    try {
+        const {userId} = req.body;
+        
+        const user = await userModel.findById(userId).select('-password');
+        
+        if(!user){
+            return res.json({success: false, message: 'User not found'});
+        }
+        
+        res.json({success: true, user});
+        
+    } catch (error) {
+        console.log(error);
+        res.json({success: false, message: error.message});
+    }
+}
+
 //Route for admin login
 const adminLogin = async (req, res) => {
     try {
@@ -104,4 +123,4 @@ const adminLogin = async (req, res) => {
 
 }
 
-export {loginUser, registerUser, adminLogin}
+export {loginUser, registerUser, adminLogin, getUserProfile}

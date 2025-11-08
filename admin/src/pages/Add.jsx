@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { assets } from '../assets/assets'
 import axios from "axios";
-import { backendUrl } from '../App'
+import { backendUrl } from '../../config'
 import { toast } from 'react-toastify';
 
 
@@ -114,15 +114,23 @@ const Add = ({token}) => {
             <option value="LIGHTING">Lighting</option>
             <option value="WALLDECOR">Wall Decor</option>
             <option value="PLANTSANDVASES">Plants & Vases</option>
+            <option value="HOMEACCESSORIES">Home Accessories</option>
+            
+
           </select>
         </div>
 
         <div>
           <p className='mb-2'>Sub Category</p>
           <select onChange={(e)=> setSubCategory(e.target.value)} className='w-full px-3 py-2' >
-            <option value="LAMPS">Lamps</option>
+            <option value="TABLELAMPS">Table Lamp</option>
+            <option value="FLOORLAMPS">Floor Lamp</option>
             <option value="PAINTINGS">Paintings</option>
+            <option value="MIRROR">Mirror</option>
             <option value="PLANTS">Plants</option>
+            <option value="CLOCK">Clock</option>
+            <option value="SCULPTURE">Sculpture</option>
+
           </select>
         </div>
 

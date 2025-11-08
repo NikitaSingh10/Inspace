@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
-import { backendUrl, currency } from '../App';
+import { backendUrl, currency } from "../../config";
 import { toast } from 'react-toastify';
 
 const List = ({token}) => {
@@ -20,7 +20,7 @@ const List = ({token}) => {
       
     } catch (error) {
       console.log(error)
-      toast.error(response.data.message)
+      toast.error(error.message)
     }
 
   }

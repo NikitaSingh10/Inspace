@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 import RelatedProducts from '../components/RelatedProducts';
@@ -7,9 +7,10 @@ import RelatedProducts from '../components/RelatedProducts';
 const Product = () => {
 
 const{productId} = useParams();
-const{products,currency, addToCart, viewinAr} =useContext(ShopContext);
+const{products,currency, addToCart} =useContext(ShopContext);
 const[productData, setProductData]= useState(false);
 const[image , setImage] = useState("");
+const navigate = useNavigate();
 
 const fetchProductData = async() =>{
 
@@ -27,6 +28,11 @@ const fetchProductData = async() =>{
 useEffect(()=>{
   fetchProductData();
 },[productId,products])
+
+useEffect(() => {
+  // Scroll to top when component mounts
+  window.scrollTo(0, 0);
+}, []);
 
   return productData ? (
     <div className='border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100'>
@@ -64,22 +70,21 @@ useEffect(()=>{
             <p className='mt-5 text-gray-500 md:w-4/5'>{productData.description}</p>
             <div className='flex flex-col gap-4 my-8'>
             </div>
-            <div>
+            <div className='flex flex-col sm:flex-row gap-3'>
               <button onClick={()=>addToCart(productData._id)} className='bg-black text-white px-8 py-3 text-sm active:bg-gray-700' >ADD TO CART</button>
               
               {productData.modelUrl && (
               <button onClick={()=>{
-                window.open(`/ar-viewer?model=${encodeURIComponent(productData.modelUrl)}&name=${encodeURIComponent(productData.name)}`, "_blank" );
+                navigate(`/ar-viewer?model=${encodeURIComponent(productData.modelUrl)}&name=${encodeURIComponent(productData.name)}`);
               }} 
               className='bg-black text-white px-10 py-3 text-sm active:bg-gray-700' >VIEW IN AR</button>
             )}
-              <hr className='mt-8 sm:w-4/5' />
-              <div className='text-sm text-gray-500 mt-5 flex flex-col gap-1'>
-                <p>100% Original product</p>
-                <p>Cash on delivery is available on this product</p>
-                <p>Easy return and exchamge policy within 7 days</p>
-
-              </div>
+            </div>
+            <hr className='mt-8 sm:w-4/5' />
+            <div className='text-sm text-gray-500 mt-5 flex flex-col gap-1'>
+              <p>100% Original product</p>
+              <p>Cash on delivery is available on this product</p>
+              <p>Easy return and exchamge policy within 7 days</p>
             </div>
         </div>
 

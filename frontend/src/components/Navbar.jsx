@@ -7,7 +7,7 @@ import { ShopContext } from '../context/ShopContext';
 const Navbar = () => {
 
     const [visible, setVisible] =useState(false);
-    const {setShowSearch , getCartCount, navigate, token , setToken, setCartItems}= useContext(ShopContext);
+    const {setShowSearch , getCartCount, navigate, token , setToken, setCartItems, user}= useContext(ShopContext);
 
     const logout = () => {
         navigate('/login')
@@ -15,6 +15,11 @@ const Navbar = () => {
         setToken('');
         setCartItems({})
         
+    }
+
+    const getUserInitials = (name) => {
+        if (!name) return 'U';
+        return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
     }
 
   return (
@@ -54,18 +59,32 @@ const Navbar = () => {
         <div className='flex items-center gap-6'>
             <img onClick={()=>setShowSearch(true)} src={assets.search_icon} className='w-5 cursor-pointer' alt="" />
             <div className='group relative'>
-                <img onClick={()=> token ? null : navigate('/Login')} className='w-5 cursor-pointer' src={assets.profile_icon} alt="" />
+                {token ? (
+                    <div className='flex items-center gap-2 cursor-pointer'>
+                        <div className='w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm font-semibold'>
+                            {user ? getUserInitials(user.name) : '...'}
+                        </div>
+                        <div className='hidden sm:block'>
+                            <p className='text-sm font-medium text-gray-700'>{user?.name || 'Loading...'}</p>
+                            <p className='text-xs text-gray-500'>{user?.email || ''}</p>
+                        </div>
+                    </div>
+                ) : (
+                    <img onClick={()=> navigate('/Login')} className='w-5 cursor-pointer' src={assets.profile_icon} alt="" />
+                )}
+                
                 {/*dropdown menu */}
-
                 {token && 
                 <div className='group-hover:block hidden absolute dropdown-menu right-0 pt-4'>
-                    <div className='flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded'>
-                        <p className='cursor-pointer hover:text-black'>My Profile</p>
-                        <p onClick={()=> navigate('/Orders')} className='cursor-pointer hover:text-black'>Orders</p>
-                        <p onClick={logout} className='cursor-pointer hover:text-black'>Logout</p>
-
+                    <div className='flex flex-col gap-2 w-48 py-3 px-5 bg-white border border-gray-200 shadow-lg rounded-lg'>
+                        <div className='pb-2 border-b border-gray-100'>
+                            <p className='text-sm font-medium text-gray-900'>{user?.name || 'User'}</p>
+                            <p className='text-xs text-gray-500'>{user?.email}</p>
+                        </div>
+                        <p className='cursor-pointer hover:text-blue-600 hover:bg-blue-50 py-1 px-2 rounded text-sm'>My Profile</p>
+                        <p onClick={()=> navigate('/Orders')} className='cursor-pointer hover:text-blue-600 hover:bg-blue-50 py-1 px-2 rounded text-sm'>My Orders</p>
+                        <p onClick={logout} className='cursor-pointer hover:text-red-600 hover:bg-red-50 py-1 px-2 rounded text-sm'>Logout</p>
                     </div>
-
                 </div>
 }
             </div>
@@ -84,13 +103,34 @@ const Navbar = () => {
                 <div onClick={()=> setVisible(false)} className='flex items-center gap-4 p-3 cursor-pointer'>
                     <img className='h-4 ' src={assets.dropdown_icon} alt="" />
                     <p>Back</p>
-
                 </div>
+                
+                {/* User info in mobile menu */}
+                {token && user && (
+                    <div className='px-6 py-4 border-b border-gray-200 bg-gray-50'>
+                        <div className='flex items-center gap-3'>
+                            <div className='w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm font-semibold'>
+                                {getUserInitials(user.name)}
+                            </div>
+                            <div>
+                                <p className='text-sm font-medium text-gray-900'>{user.name}</p>
+                                <p className='text-xs text-gray-500'>{user.email}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                
                 <NavLink onClick={()=> setVisible(false)} className='py-2 pl-6 border' to='/'>HOME</NavLink>
                 <NavLink onClick={()=> setVisible(false)} className='py-2 pl-6 border' to='/Collection'>COLLECTION</NavLink>
                 <NavLink onClick={()=> setVisible(false)} className='py-2 pl-6 border' to='/About'>About</NavLink>
                 <NavLink onClick={()=> setVisible(false)} className='py-2 pl-6 border' to='/Contact'>Contact</NavLink>
-
+                
+                {token && (
+                    <>
+                        <NavLink onClick={()=> setVisible(false)} className='py-2 pl-6 border' to='/Orders'>My Orders</NavLink>
+                        <button onClick={()=> {setVisible(false); logout();}} className='py-2 pl-6 border text-left text-red-600'>Logout</button>
+                    </>
+                )}
             </div>
         </div>
         

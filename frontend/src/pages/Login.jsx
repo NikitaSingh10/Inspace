@@ -10,6 +10,14 @@ const Login = () => {
   const [name, setName ]= useState('')
   const [password, setPassword ]= useState('')
   const [email, setEmail] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+
+  const clearForm = () => {
+    setName('');
+    setEmail('');
+    setPassword('');
+    setShowPassword(false);
+  }
 
   const onSubmitHandler = async (event)=>{
     event.preventDefault();
@@ -18,8 +26,13 @@ const Login = () => {
 
         const response = await axios.post(backendUrl+ '/api/user/register', {name, email, password})
         if(response.data.success){
+          localStorage.removeItem('token');
+          setToken('');
+
           setToken(response.data.token);
-          localStorage.setItem('token',response.data.token)
+          localStorage.setItem('token', response.data.token);
+
+          toast.success('Account created successfully!');
         }else{
           toast.error(response.data.message)
   
@@ -47,7 +60,7 @@ const Login = () => {
     if(token){
       navigate('/')
     }
-  },[token])
+  },[token, navigate])
 
   return (
     <form  onSubmit={onSubmitHandler} className='flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt--14 gap-4 text-gray-800' >
@@ -59,13 +72,38 @@ const Login = () => {
 
       {currentState === 'Login'? '' : <input  onChange={ (e) => setName(e.target.value) } value={name} type="text" className='w-full px-3 py-2 border border-gray-800' placeholder='UserName' required/>}
       <input onChange={ (e) => setEmail(e.target.value) } value={email} type="email" className='w-full px-3 py-2 border border-gray-800' placeholder='E-mail' required/>
-      <input onChange={ (e) => setPassword(e.target.value) } value={password} type="password" className='w-full px-3 py-2 border border-gray-800' placeholder='Password' required/>
+      <div className='relative w-full'>
+        <input 
+          onChange={ (e) => setPassword(e.target.value) } 
+          value={password} 
+          type={showPassword ? "text" : "password"} 
+          className='w-full px-3 py-2 border border-gray-800 pr-10' 
+          placeholder='Password' 
+          required
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800 focus:outline-none'
+        >
+          {showPassword ? (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          )}
+        </button>
+      </div>
       <div className='w-full flex justify-between text-sm mt-[-8px]'>
         <p className='cursor-pointer'>Forgot your Password?</p>
         {
           currentState ==='Login'
-          ?<p onClick={()=>setCurrentState('Sign Up')} className='cursor-pointer'>Create account</p>
-          : <p onClick={()=> setCurrentState('Login')} className='cursor-pointer'>Login Here</p>
+          ?<p onClick={()=>{setCurrentState('Sign Up'); clearForm();}} className='cursor-pointer'>Create account</p>
+          : <p onClick={()=>{setCurrentState('Login'); clearForm();}} className='cursor-pointer'>Login Here</p>
 
         }
       </div>

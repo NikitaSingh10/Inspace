@@ -1,5 +1,5 @@
 import React from 'react'
-import{Routes, Route} from 'react-router-dom'
+import{Routes, Route, useLocation} from 'react-router-dom'
 import Home from './pages/Home'
 import PlaceOrder from './pages/PlaceOrder'
 import Navbar from'./components/Navbar'
@@ -15,9 +15,29 @@ import SearchBar from './components/SearchBar'
 import ProductPage from './pages/ProductPage'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ARViewer from './pages/ARViewer'
+import ARViewer from './pages/ARViewer';
+import PaymentSuccess from './pages/PaymentSuccess';
 
 const App = () => {
+  const location = useLocation();
+  const isARViewer = location.pathname === '/ar-viewer';
+
+  // For AR viewer, render without layout wrapper
+  if (isARViewer) {
+    return (
+      <>
+        <ToastContainer/>
+        <Routes>
+          <Route path="/ar-viewer" element={<ARViewer />} />
+        </Routes>
+      </>
+    );
+  }
+
+// In your routes:
+
+
+  // For all other pages, render with normal layout
   return (
     <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]'>
       <ToastContainer/>
@@ -36,6 +56,7 @@ const App = () => {
         <Route path='/Orders' element={<Orders/>}/>
         <Route path="/product" element={<ProductPage />} /> 
         <Route path="/ar-viewer" element={<ARViewer />} />
+        <Route path='/payment-success' element={<PaymentSuccess />} />
       </Routes>
       <Footer />
 

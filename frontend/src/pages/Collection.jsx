@@ -104,6 +104,10 @@ useEffect(()=>{
               <input className='w-3' type="checkbox" value={'PLANTSANDVASES'} onChange={toggleCategory} />Plants & Vases
             </p>
 
+            <p className='flex gap-2'>
+              <input className='w-3' type="checkbox" value={'HOMEACCESSORIES'} onChange={toggleCategory} />Home Accessories
+            </p>
+
             
           </div>
 
@@ -115,7 +119,11 @@ useEffect(()=>{
           <p className='mb-3 text-sm font-medium'>SUB-CATEGORIES</p>
           <div className='flex flex-col gap-2 text-sm font-light text-gray-700'>
             <p className='flex gap-2'>
-              <input className='w-3' type="checkbox" value={'LAMPS'} onChange={toggleSubCategory}/>Lamps
+              <input className='w-3' type="checkbox" value={'TABLELAMPS'} onChange={toggleSubCategory}/>Table Lamps
+            </p>
+
+            <p className='flex gap-2'>
+              <input className='w-3' type="checkbox" value={'FLOORLAMPS'} onChange={toggleSubCategory}/>Floor Lamps
             </p>
 
             <p className='flex gap-2'>
@@ -123,7 +131,19 @@ useEffect(()=>{
             </p>
 
             <p className='flex gap-2'>
+              <input className='w-3' type="checkbox" value={'MIRROR'} onChange={toggleSubCategory} />Mirror
+            </p>
+
+            <p className='flex gap-2'>
               <input className='w-3' type="checkbox" value={'PLANTS'}onChange={toggleSubCategory} />Plants
+            </p>
+
+            <p className='flex gap-2'>
+              <input className='w-3' type="checkbox" value={'CLOCK'} onChange={toggleSubCategory} />Clock
+            </p>
+
+            <p className='flex gap-2'>
+              <input className='w-3' type="checkbox" value={'SCULPTURE'} onChange={toggleSubCategory} />Sculpture
             </p>
           </div>
 

@@ -1,33 +1,29 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useCallback } from "react";
 import React from "react";
 import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { backendUrl, currency, delivery_fee } from "../config";
 
 
 export const ShopContext = createContext();
 
 const ShopContextProvider= (props) =>{
 
-    const currency ='₹';
-    const delivery_fee = 40;
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     const [search,setSearch] = useState('');
     const[showSearch , setShowSearch] = useState(false);
     const[cartItems, setCartItems]= useState({});
     const [products, setProducts] = useState([]);
     const [token, setToken] = useState('');
+    const [user, setUser] = useState(null);
+    const [orders, setOrders] = useState([]);
     const navigate = useNavigate();
 
 
     console.log('Backend URL:', backendUrl);
 
     const viewinAr= async () => {
-        
-
-        const handleClick= () => {
-            navigate("/product");
-        };
+        navigate("/product");
     }
 
     const addToCart= async (itemId) =>{
@@ -56,6 +52,9 @@ const ShopContextProvider= (props) =>{
                 toast.error(error.message)
                 
             }
+        }
+        else{
+            toast.warn("please login first Sto add products to cart")
         }
 
     }
@@ -115,7 +114,7 @@ const ShopContextProvider= (props) =>{
         }
     }
 
-    const getUserCart = async (token) => {
+    const getUserCart = useCallback(async (token) => {
         try {
             const response = await axios.post(backendUrl + '/api/cart/get' , {}, {headers:{token}})
             if(response.data.success){
@@ -125,7 +124,31 @@ const ShopContextProvider= (props) =>{
             console.log(error);
             toast.error(error.message)
         }
-    }
+    }, [])
+
+    const getUserProfile = useCallback(async (token) => {
+        try {
+            const response = await axios.post(backendUrl + '/api/user/profile', {}, {headers:{token}})
+            if(response.data.success){
+                setUser(response.data.user)
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.message)
+        }
+    }, [])
+
+    const getUserOrders = useCallback(async (token) => {
+        try {
+            const response = await axios.post(backendUrl + '/api/order/userorders', {}, {headers:{token}})
+            if(response.data.success){
+                setOrders(response.data.orders)
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.message)
+        }
+    }, [])
 
     useEffect(()=>{
         getProductsData();
@@ -133,17 +156,24 @@ const ShopContextProvider= (props) =>{
    
     useEffect(() => {
         if(!token && localStorage.getItem('token')){
-            setToken(localStorage.getItem('token'))
-            getUserCart(localStorage.getItem('token'))
-            
+            const storedToken = localStorage.getItem('token')
+            setToken(storedToken)
+            getUserCart(storedToken)
+            getUserProfile(storedToken)
         }
-    },[])
+    },[token, getUserCart, getUserProfile])
+
+    useEffect(() => {
+        if(token){
+            getUserProfile(token)
+        }
+    }, [token, getUserProfile])
 
     const value ={
         products,currency,delivery_fee,search,setSearch,
         showSearch,setShowSearch,cartItems , addToCart , getCartCount,
         updateQuantity, getCartAmount, navigate, backendUrl,setToken,token,
-        setCartItems, viewinAr
+        setCartItems, viewinAr, user, orders, getUserProfile, getUserOrders
 
     }
     return (
