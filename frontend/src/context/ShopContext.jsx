@@ -143,10 +143,12 @@ const ShopContextProvider= (props) =>{
             const response = await axios.post(backendUrl + '/api/order/userorders', {}, {headers:{token}})
             if(response.data.success){
                 setOrders(response.data.orders)
+                return response.data.orders;
             }
         } catch (error) {
             console.log(error);
             toast.error(error.message)
+            throw error;
         }
     }, [])
 

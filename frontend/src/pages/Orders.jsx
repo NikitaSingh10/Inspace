@@ -1,16 +1,63 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import Title from '../components/Title';
+import TrackOrder from '../components/TrackOrder';
 
 const Orders = () => {
 
   const{orders, currency, token, getUserOrders} = useContext(ShopContext);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     if(token) {
       getUserOrders(token);
     }
   }, [token, getUserOrders]);
+
+  // Refresh orders periodically (every 30 seconds) to get updated status
+  useEffect(() => {
+    if (!token) return;
+
+    const refreshInterval = setInterval(() => {
+      getUserOrders(token);
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(refreshInterval);
+  }, [token, getUserOrders]);
+
+  // Update selectedOrder when orders are refreshed and it's still open
+  useEffect(() => {
+    if (selectedOrder && orders.length > 0) {
+      const updatedOrder = orders.find(o => o._id === selectedOrder._id);
+      if (updatedOrder && updatedOrder.status !== selectedOrder.status) {
+        setSelectedOrder(updatedOrder);
+      }
+    }
+  }, [orders, selectedOrder]);
+
+  const handleTrackOrder = async (order) => {
+    // Refresh orders before showing track order to ensure latest status
+    if (token) {
+      setIsRefreshing(true);
+      try {
+        const updatedOrders = await getUserOrders(token);
+        const updatedOrder = updatedOrders?.find(o => o._id === order._id) || order;
+        setSelectedOrder(updatedOrder);
+      } catch (error) {
+        console.error(error)
+        setSelectedOrder(order);
+      } finally {
+        setIsRefreshing(false);
+      }
+    } else {
+      setSelectedOrder(order);
+    }
+  };
+
+  const handleCloseTrackOrder = () => {
+    setSelectedOrder(null);
+  };
 
   const formatDate = (timestamp) => {
     const date = new Date(timestamp);
@@ -99,8 +146,12 @@ const Orders = () => {
                       {order.address.country}
                     </p>
                   </div>
-                  <button className='border px-4 py-2 text-sm font-medium rounded-sm hover:bg-gray-50'>
-                    Track Order
+                  <button 
+                    onClick={() => handleTrackOrder(order)}
+                    disabled={isRefreshing}
+                    className='border px-4 py-2 text-sm font-medium rounded-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+                  >
+                    {isRefreshing ? 'Refreshing...' : 'Track Order'}
                   </button>
                 </div>
               </div>
@@ -108,6 +159,14 @@ const Orders = () => {
           ))
         )}
       </div>
+
+      {/* Track Order Modal */}
+      {selectedOrder && (
+        <TrackOrder 
+          order={selectedOrder} 
+          onClose={handleCloseTrackOrder}
+        />
+      )}
 
     </div>
   )
