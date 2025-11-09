@@ -10,11 +10,8 @@ const getBackendUrl = () => {
     // For localhost or IP address, use port 4000
     return `${protocol}//${hostname}:4000`;
   } else {
-    // In production, you can set this to your production backend URL
-    // For now, defaulting to same host on port 4000
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
-    return `${protocol}//${hostname}:4000`;
+    // In production, use environment variable or fallback to same origin
+    return import.meta.env.VITE_BACKEND_URL || window.location.origin;
   }
 };
 

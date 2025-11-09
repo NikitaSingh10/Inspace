@@ -1,0 +1,6 @@
+{
+  "version": 2,
+  "buildCommand": "echo 'Root build - deploy individual projects separately'",
+  "installCommand": "echo 'Install handled by individual projects'"
+}
+

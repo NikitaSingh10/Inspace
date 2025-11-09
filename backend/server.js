@@ -16,7 +16,28 @@ connectCloudinary()
 
 // Middlewares
 app.use(express.json())
-app.use(cors())
+
+// CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // In production, check against allowed origins
+    const allowedOrigins = process.env.ALLOWED_ORIGINS 
+      ? process.env.ALLOWED_ORIGINS.split(',')
+      : ['*']; // Allow all in development
+    
+    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+};
+
+app.use(cors(corsOptions))
 
 // api endpoints
 app.use('/api/user', userRouter)
@@ -28,4 +49,10 @@ app.get('/',(req, res)=>{
     res.send("API Workinng")
 })
 
-app.listen(port, '0.0.0.0' ,()=>console.log('Server started on PORT: ' + port))
+// Export app for Vercel serverless functions
+export default app
+
+// Start server only if not in Vercel environment
+if (process.env.VERCEL !== '1') {
+    app.listen(port, '0.0.0.0' ,()=>console.log('Server started on PORT: ' + port))
+}
