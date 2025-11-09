@@ -1,6 +1,11 @@
 import {v2 as cloudinary} from "cloudinary"
 
-const connectCloudinary = async () =>{
+let cloudinaryConfigured = false;
+
+const connectCloudinary = async () => {
+    if (cloudinaryConfigured) {
+        return;
+    }
 
     cloudinary.config({
         cloud_name : process.env.CLOUDINARY_NAME,
@@ -8,6 +13,7 @@ const connectCloudinary = async () =>{
         api_secret: process.env.CLOUDINARY_SECRET_KEY
     })
 
+    cloudinaryConfigured = true;
 }
 
 export default connectCloudinary;
