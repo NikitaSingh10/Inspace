@@ -10,8 +10,13 @@ const getBackendUrl = () => {
     // For localhost or IP address, use port 4000
     return `${protocol}//${hostname}:4000`;
   } else {
-    // In production, use environment variable or fallback to same origin
-    return import.meta.env.VITE_BACKEND_URL || window.location.origin;
+    // In production, MUST use environment variable
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    if (!backendUrl) {
+      console.error('VITE_BACKEND_URL is not set! Please set it in Vercel environment variables.');
+      throw new Error('Backend URL not configured. Please set VITE_BACKEND_URL environment variable.');
+    }
+    return backendUrl;
   }
 };
 
