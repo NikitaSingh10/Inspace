@@ -17,6 +17,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ARViewer from './pages/ARViewer';
 import PaymentSuccess from './pages/PaymentSuccess';
+import RoomRecommendation from "./pages/RoomRecommendation";
+
 
 const App = () => {
   const location = useLocation();
@@ -57,6 +59,8 @@ const App = () => {
         <Route path="/product" element={<ProductPage />} /> 
         <Route path="/ar-viewer" element={<ARViewer />} />
         <Route path='/payment-success' element={<PaymentSuccess />} />
+        <Route path="/ai-room" element={<RoomRecommendation />} />
+
       </Routes>
       <Footer />
 

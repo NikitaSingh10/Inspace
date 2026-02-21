@@ -9,7 +9,8 @@ const productSchema = new mongoose.Schema({
     subcategory: {type:String, required:true},
     bestseller:{type:Boolean},
     date:{type:Number, required:true},
-    modelUrl: { type: String, default: "" }
+    modelUrl: { type: String, default: "" },
+    
     
 })
 
