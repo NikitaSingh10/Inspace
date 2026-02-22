@@ -1,12 +1,27 @@
 import {v2 as cloudinary} from 'cloudinary'
 import productModel from '../models/productModel.js'
 import path from "path";
+import { CANONICAL_COLORS } from '../utils/colorTags.js';
+
+function parseColorTags(value) {
+    if (!value) return [];
+    if (Array.isArray(value)) return value.filter(Boolean).map((c) => String(c).trim().toLowerCase());
+    if (typeof value === 'string') {
+        try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) ? parsed.filter(Boolean).map((c) => String(c).trim().toLowerCase()) : [];
+        } catch {
+            return value.split(',').map((c) => c.trim().toLowerCase()).filter(Boolean);
+        }
+    }
+    return [];
+}
 
 //Funtion for adding product
 const addProduct = async (req,res) => {
     try {
         
-        const {name, description, price, category, subcategory, bestseller} = req.body;
+        const {name, description, price, category, subcategory, bestseller, colorTags} = req.body;
 
         const image1 = req.files?.image1?.[0];
         const image2 = req.files?.image2?.[0];
@@ -39,6 +54,7 @@ const addProduct = async (req,res) => {
          modelUrl = result.secure_url;
         }   
 
+        const tags = parseColorTags(colorTags);
         const productData ={
             name, 
             description,
@@ -48,7 +64,8 @@ const addProduct = async (req,res) => {
             bestseller:bestseller === 'true' ? true : false,
             image:imagesUrl,
             modelUrl: modelUrl,
-            date: Date.now()
+            date: Date.now(),
+            colorTags: tags
         }
 
         const product= new productModel(productData);
@@ -105,8 +122,31 @@ const singleProduct = async (req,res) => {
         console.log(error)
         res.json({success:false, message:error.message})
     }
-
-    
 }
 
-export{addProduct, listProduct, removeProduct, singleProduct};
+const updateProduct = async (req, res) => {
+    try {
+        const { productId, colorTags, name, description, price, category, subcategory, bestseller } = req.body;
+        if (!productId) return res.json({ success: false, message: 'productId required' });
+        const update = {};
+        if (colorTags !== undefined) update.colorTags = parseColorTags(colorTags);
+        if (name !== undefined) update.name = name;
+        if (description !== undefined) update.description = description;
+        if (price !== undefined) update.price = Number(price);
+        if (category !== undefined) update.category = category;
+        if (subcategory !== undefined) update.subcategory = subcategory;
+        if (bestseller !== undefined) update.bestseller = bestseller === 'true' || bestseller === true;
+        const product = await productModel.findByIdAndUpdate(productId, { $set: update }, { new: true });
+        if (!product) return res.json({ success: false, message: 'Product not found' });
+        res.json({ success: true, product });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+const getColorTags = (_req, res) => {
+    res.json({ success: true, colorTags: CANONICAL_COLORS });
+};
+
+export{addProduct, listProduct, removeProduct, singleProduct, updateProduct, getColorTags};

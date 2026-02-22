@@ -55,6 +55,11 @@ const Navbar = () => {
 
             </NavLink>
 
+            <NavLink to='/ai-room' className='flex flex-col items-center gap-1'>
+                <p>AI ROOM</p>
+                <hr className='w-2 border-none h-[1.5px] bg-gray-700 hidden' />
+            </NavLink>
+
         </ul>
         <div className='flex items-center gap-6'>
             <img onClick={()=>setShowSearch(true)} src={assets.search_icon} className='w-5 cursor-pointer' alt="" />
@@ -124,6 +129,7 @@ const Navbar = () => {
                 <NavLink onClick={()=> setVisible(false)} className='py-2 pl-6 border' to='/Collection'>COLLECTION</NavLink>
                 <NavLink onClick={()=> setVisible(false)} className='py-2 pl-6 border' to='/About'>About</NavLink>
                 <NavLink onClick={()=> setVisible(false)} className='py-2 pl-6 border' to='/Contact'>Contact</NavLink>
+                <NavLink onClick={()=> setVisible(false)} className='py-2 pl-6 border' to='/ai-room'>AI Room</NavLink>
                 
                 {token && (
                     <>

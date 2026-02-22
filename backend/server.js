@@ -17,8 +17,8 @@ connectDb()
 connectCloudinary()
 
 
-// Middlewares
-app.use(express.json())
+// Middlewares (higher limit for AI image upload – base64 can be large)
+app.use(express.json({ limit: '15mb' }))
 
 // CORS configuration
 const corsOptions = {

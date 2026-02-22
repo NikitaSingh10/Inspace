@@ -10,8 +10,7 @@ const productSchema = new mongoose.Schema({
     bestseller:{type:Boolean},
     date:{type:Number, required:true},
     modelUrl: { type: String, default: "" },
-    
-    
+    colorTags: { type: [String], default: [] },
 })
 
 const productModel =mongoose.models.product || mongoose.model("product", productSchema)

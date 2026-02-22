@@ -18,6 +18,8 @@ const ShopContextProvider= (props) =>{
     const [user, setUser] = useState(null);
     const [orders, setOrders] = useState([]);
     const navigate = useNavigate();
+    const [roomRecommendations, setRoomRecommendations] = useState([]);
+    const [roomPreviewUrl, setRoomPreviewUrl] = useState(null);
 
 
     console.log('Backend URL:', backendUrl);
@@ -175,8 +177,8 @@ const ShopContextProvider= (props) =>{
         products,currency,delivery_fee,search,setSearch,
         showSearch,setShowSearch,cartItems , addToCart , getCartCount,
         updateQuantity, getCartAmount, navigate, backendUrl,setToken,token,
-        setCartItems, viewinAr, user, orders, getUserProfile, getUserOrders
-
+        setCartItems, viewinAr, user, orders, getUserProfile, getUserOrders,
+        roomRecommendations, setRoomRecommendations, roomPreviewUrl, setRoomPreviewUrl,
     }
     return (
         <ShopContext.Provider value={value}>

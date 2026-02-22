@@ -1,10 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { assets } from '../assets/assets'
 import axios from "axios";
 import { backendUrl } from '../../config'
 import { toast } from 'react-toastify';
-
-
 
 const Add = ({token}) => {
   const [image1, setImage1] = useState(false);
@@ -19,6 +17,24 @@ const Add = ({token}) => {
   const [subCategory, setSubCategory] =useState('LAMPS');
   const [bestseller, setBestseller] = useState(false);
   const [modelFile, setModelFile] = useState(null);
+  const [colorTagsList, setColorTagsList] = useState([]);
+  const [colorTags, setColorTags] = useState([]);
+
+  useEffect(() => {
+    const fetchColorTags = async () => {
+      try {
+        const res = await axios.get(backendUrl + '/api/product/color-tags');
+        if (res.data.success && res.data.colorTags) setColorTagsList(res.data.colorTags);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchColorTags();
+  }, []);
+
+  const toggleColorTag = (tag) => {
+    setColorTags((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]);
+  };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -32,6 +48,7 @@ const Add = ({token}) => {
       formData.append("category",category)
       formData.append("subcategory",subCategory)
       formData.append("bestseller",bestseller)
+      formData.append("colorTags", JSON.stringify(colorTags))
 
       image1 && formData.append("image1",image1)
       image2 && formData.append("image2",image2)
@@ -51,7 +68,7 @@ const Add = ({token}) => {
         setImage3(false);
         setImage4(false);
         setPrice ('');
-      
+        setColorTags([]);
       }else{
         toast.error(response.data.message)
       }
@@ -143,6 +160,22 @@ const Add = ({token}) => {
       <div className='flex gap-2 mt-2'>
         <input onChange={()=> setBestseller(prev => !prev)} checked={bestseller} type="checkbox" id='bestseller' />
         <label className='cursor-pointer' htmlFor="bestseller">Add to Bestseller</label>
+      </div>
+
+      <div className='w-full mt-4'>
+        <p className='mb-2'>Color tags (for AI room recommendations)</p>
+        <div className='flex flex-wrap gap-2'>
+          {colorTagsList.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => toggleColorTag(tag)}
+              className={`px-3 py-1 text-sm border ${colorTags.includes(tag) ? 'bg-black text-white border-black' : 'border-gray-400'}`}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
       </div>
 
       <button  type='submit' className='w-28 py-3 mt-4 bg-black text-white'>ADD</button>

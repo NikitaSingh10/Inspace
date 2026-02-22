@@ -1,125 +1,196 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
+import { backendUrl } from "../config";
+import Title from "../components/Title";
+import { useContext } from "react";
+import { ShopContext } from "../context/ShopContext";
 
 const RoomRecommendation = () => {
-
+  const {
+    currency,
+    roomRecommendations,
+    setRoomRecommendations,
+    roomPreviewUrl,
+    setRoomPreviewUrl,
+  } = useContext(ShopContext);
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [error, setError] = useState(null);
+  const fileInputRef = useRef(null);
 
-  const handleImageUpload = async (e) => {
+  useEffect(() => {
+    if (roomRecommendations?.length > 0) setRecommendations(roomRecommendations);
+    if (roomPreviewUrl) setPreview(roomPreviewUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- restore from context only on mount
+  }, []);
+
+  const handleImageSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (preview && preview.startsWith("blob:")) URL.revokeObjectURL(preview);
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+    setRoomPreviewUrl(url);
+    setSelectedFile(file);
+    setRecommendations([]);
+    setRoomRecommendations([]);
+    setError(null);
+  };
 
-    setPreview(URL.createObjectURL(file));
+  const handleSend = async () => {
+    if (!selectedFile) {
+      setError("Please upload a room image first.");
+      return;
+    }
     setLoading(true);
+    setError(null);
 
     const reader = new FileReader();
-
     reader.onloadend = async () => {
-      const base64 = reader.result.split(",")[1];
-
+      const base64 = (reader.result || "").split(",")[1];
+      if (!base64) {
+        setError("Could not read image.");
+        setLoading(false);
+        return;
+      }
       try {
         const response = await axios.post(
-          "http://localhost:4000/api/ai/recommend-room",
+          backendUrl + "/api/ai/recommend-room",
           { image: base64 }
         );
-       //console.log(response.data);
         if (response.data.success) {
-          setRecommendations(response.data.recommendations);
-          
-
+          const list = response.data.recommendations || [];
+          setRecommendations(list);
+          setRoomRecommendations(list);
+        } else {
+          setError(response.data.message || "Could not get suggestions.");
         }
-      } catch (error) {
-        console.log(error);
+      } catch (err) {
+        const msg =
+          err.response?.data?.error ||
+          err.response?.data?.message ||
+          err.message ||
+          "Request failed. Try a smaller image.";
+        setError(msg);
+        setRecommendations([]);
+        setRoomRecommendations([]);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
+    reader.readAsDataURL(selectedFile);
+  };
 
-    reader.readAsDataURL(file);
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-10">
-      
-      <div className="max-w-6xl mx-auto">
-
-        {/* Header */}
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-semibold text-gray-800">
-            AI Room Recommendation
-          </h2>
-          <p className="text-gray-500 mt-2">
-            Upload your room image and get smart furniture suggestions
+    <div className="min-h-screen bg-white">
+      <div className="max-w-6xl mx-auto pt-10 pb-16 px-4 sm:px-6">
+        {/* Section header – matches Home / LatestCollection + Hero serif */}
+        <div className="text-center py-8">
+          <Title text1={"AI"} text2={"ROOM RECOMMENDATION"} />
+          <h1 className="prata-regular text-2xl sm:text-3xl lg:text-4xl text-[#414141] mt-2">
+            Get Smart Suggestions
+          </h1>
+          <p className="w-full max-w-xl mx-auto text-xs sm:text-sm md:text-base text-gray-600 mt-3">
+            Upload your room image and get smart furniture suggestions tailored to your space.
           </p>
         </div>
 
-        {/* Upload Section */}
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
+        {/* Upload section – clean border, no gray box */}
+        <div className="border border-gray-400 py-12 px-6 sm:py-16 sm:px-10 text-center">
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
-            onChange={handleImageUpload}
-            className="mb-4"
+            onChange={handleImageSelect}
+            className="hidden"
           />
 
+          <div
+            onClick={handleUploadClick}
+            className="inline-flex flex-col sm:flex-row items-center gap-2 cursor-pointer text-[#414141] hover:opacity-80 transition-opacity"
+          >
+            <p className="font-semibold text-sm md:text-base">UPLOAD IMAGE</p>
+            <p className="w-8 md:w-11 h-[1px] bg-[#414141] flex-shrink-0" />
+          </div>
+
+          <p className="text-sm text-gray-500 mt-2">
+            Choose a photo of your room, then click Send to get suggestions
+          </p>
+
           {preview && (
-            <div className="flex justify-center mb-4">
+            <div className="flex flex-col items-center mt-8">
               <img
                 src={preview}
-                alt="Room Preview"
-                className="w-64 h-48 object-cover rounded-lg shadow"
+                alt="Room preview"
+                className="max-w-full max-h-72 object-cover border border-gray-200"
               />
+              {selectedFile && (
+                <button
+                  type="button"
+                  onClick={handleSend}
+                  disabled={loading}
+                  className="mt-6 inline-flex items-center gap-2 font-semibold text-sm md:text-base text-[#414141] border border-[#414141] px-6 py-3 hover:bg-[#414141] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Analyzing…" : "Send"}
+                </button>
+              )}
+              {!selectedFile && recommendations.length > 0 && (
+                <p className="mt-4 text-sm text-gray-500">
+                  Upload a new image above to get new suggestions.
+                </p>
+              )}
             </div>
           )}
 
-          {loading && (
-            <p className="text-blue-600 font-medium">
-              Analyzing room...
+          {error && (
+            <p className="mt-4 text-sm text-red-600">
+              {error}
             </p>
           )}
         </div>
 
-        {/* Recommendation Section */}
+        {/* Recommendations – same pattern as LatestCollection */}
         {recommendations.length > 0 && (
-          <div className="mt-12">
-            <h3 className="text-xl font-semibold text-gray-800 mb-6">
-              Recommended For You
-            </h3>
+          <div className="mt-10 border-t border-gray-200 pt-10">
+            <div className="text-center mb-6">
+              <Title text1={"RECOMMENDED"} text2={"FOR YOU"} />
+            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6">
               {recommendations.map((item) => (
-                <div
+                <Link
                   key={item._id}
-                  className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition"
+                  to={`/product/${item._id}`}
+                  className="text-gray-700 cursor-pointer group"
                 >
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
-
-                  <h4 className="mt-4 text-lg font-medium text-gray-800">
-                    {item.name}
-                  </h4>
-
-                  <p className="text-gray-600 mt-1">
-                    ₹{item.price}
+                  <div className="overflow-hidden">
+                    <img
+                      src={Array.isArray(item.image) ? item.image[0] : item.image}
+                      alt={item.name}
+                      className="w-full aspect-square object-cover group-hover:scale-110 transition ease-in-out"
+                    />
+                  </div>
+                  <p className="pt-3 pb-1 text-sm">{item.name}</p>
+                  <p className="text-sm font-medium">
+                    {currency}
+                    {item.price}
                   </p>
-
-                  <button
-                    className="mt-4 w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition"
-                    onClick={() => window.location.href = `/product/${item._id}`}
-                  >
-                    View in AR
-                  </button>
-                </div>
+                  <span className="inline-flex items-center gap-2 mt-2 text-xs font-semibold text-[#414141]">
+                    VIEW IN AR
+                    <span className="w-6 h-[1px] bg-[#414141]" />
+                  </span>
+                </Link>
               ))}
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
