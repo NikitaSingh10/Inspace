@@ -6,6 +6,56 @@ import Title from "../components/Title";
 import { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 
+const MAX_SIZE = 1200;
+const JPEG_QUALITY = 0.75;
+
+function compressImageForUpload(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if (width > MAX_SIZE || height > MAX_SIZE) {
+        if (width > height) {
+          height = Math.round((height * MAX_SIZE) / width);
+          width = MAX_SIZE;
+        } else {
+          width = Math.round((width * MAX_SIZE) / height);
+          height = MAX_SIZE;
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error("Could not compress image"));
+            return;
+          }
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64 = (reader.result || "").split(",")[1];
+            resolve(base64 || "");
+          };
+          reader.onerror = () => reject(new Error("Could not read image"));
+          reader.readAsDataURL(blob);
+        },
+        "image/jpeg",
+        JPEG_QUALITY
+      );
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Could not load image"));
+    };
+    img.src = url;
+  });
+}
+
 const RoomRecommendation = () => {
   const {
     currency,
@@ -48,40 +98,36 @@ const RoomRecommendation = () => {
     setLoading(true);
     setError(null);
 
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64 = (reader.result || "").split(",")[1];
+    try {
+      const base64 = await compressImageForUpload(selectedFile);
       if (!base64) {
         setError("Could not read image.");
         setLoading(false);
         return;
       }
-      try {
-        const response = await axios.post(
-          backendUrl + "/api/ai/recommend-room",
-          { image: base64 }
-        );
-        if (response.data.success) {
-          const list = response.data.recommendations || [];
-          setRecommendations(list);
-          setRoomRecommendations(list);
-        } else {
-          setError(response.data.message || "Could not get suggestions.");
-        }
-      } catch (err) {
-        const msg =
-          err.response?.data?.error ||
-          err.response?.data?.message ||
-          err.message ||
-          "Request failed. Try a smaller image.";
-        setError(msg);
-        setRecommendations([]);
-        setRoomRecommendations([]);
-      } finally {
-        setLoading(false);
+      const response = await axios.post(
+        backendUrl + "/api/ai/recommend-room",
+        { image: base64 }
+      );
+      if (response.data.success) {
+        const list = response.data.recommendations || [];
+        setRecommendations(list);
+        setRoomRecommendations(list);
+      } else {
+        setError(response.data.message || "Could not get suggestions.");
       }
-    };
-    reader.readAsDataURL(selectedFile);
+    } catch (err) {
+      const msg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        err.message ||
+        "Request failed. Try a smaller image.";
+      setError(msg);
+      setRecommendations([]);
+      setRoomRecommendations([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleUploadClick = () => {
