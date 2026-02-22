@@ -9,7 +9,9 @@ const Footer = () => {
             <div>
                 <img src={assets.Inspace_logo} className='mb-5 w-32' alt="" />
                 <p className='w-full md:w-2/3 text-gray-600'>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rerum, architecto totam minima nemo enim, impedit vero cum expedita, sint accusantium ut minus. Similique quasi sit quisquam, ipsa obcaecati praesentium officiis!
+                Inspace is an AI-powered home décor platform that helps you discover the perfect products for your space. Using intelligent 
+                color analysis and augmented reality, we recommend décor that complements your room and allow you to preview 
+                it in real time before making a purchase.
                 </p>
             </div>
 
@@ -25,7 +27,7 @@ const Footer = () => {
             <div>
                 <p className="text-xl font-medium mb-5">GET IN TOUCH</p>
                 <ul className='flex flex-col gap-1 text-gray-600'>
-                    <li>+1-212-456-7646</li>
+                    <li>+91 9040028630</li>
                     <li>contact@inspace.com</li>
 
                 </ul>
