@@ -12,6 +12,7 @@ const[filterProducts , setFilterProducts] = useState([]);
 const[category, setCategory]= useState([]);
 const[subCategory , setSubCategory] = useState([]);
 const[sortType, setsortType] =useState('relevant');
+const [budget, setBudget] = useState('');
 
 const toggleCategory= (e) => {
   console.log(e.target.value)
@@ -47,6 +48,13 @@ const applyFilter = () =>{
     if(subCategory.length > 0){
       productsCopy= productsCopy.filter(item=> subCategory.includes(item.subCategory));
     }
+
+    // ✅ Budget Filter
+  if(budget){
+    productsCopy = productsCopy.filter(item =>
+      item.price <= Number(budget)
+    );
+  } 
     setFilterProducts(productsCopy)
 }
 
@@ -73,13 +81,13 @@ const sortProduct =() =>{
 useEffect(()=>{
   applyFilter();
  
-},[category,subCategory, search, showSearch,products])
+},[category,subCategory, search, showSearch,products,budget])
 
 useEffect(()=>{
     sortProduct();
 
 },[sortType])
-
+ 
   return (
     <div className='flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t'>
 
@@ -148,6 +156,23 @@ useEffect(()=>{
           </div>
 
         </div>
+        <div className={`border border-gray-300 pl-5 py-3 my-5 ${showFilter ? '' : 'hidden'} sm:block`}>
+        <p className='mb-3 text-sm font-medium'>BUDGET</p>
+
+       <input
+       type="number"
+       placeholder="Enter Max Price"
+       value={budget}
+       onChange={(e)=>setBudget(e.target.value)}
+       className='border border-gray-300 px-3 py-1 text-sm w-full'
+      />
+
+    {budget && (
+    <p className='text-xs text-gray-500 mt-2'>
+      Showing products under ₹{budget}
+    </p>
+    )}
+    </div>
 
       </div>
 

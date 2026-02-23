@@ -9,8 +9,8 @@ const Footer = () => {
             <div>
                 <img src={assets.Inspace_logo} className='mb-5 w-32' alt="" />
                 <p className='w-full md:w-2/3 text-gray-600'>
-                Inspace is an AI-powered home décor platform that helps you discover the perfect products for your space. Using intelligent 
-                color analysis and augmented reality, we recommend décor that complements your room and allow you to preview 
+                Inspace is an AI-powered home decor platform that helps you discover the perfect products for your space. Using intelligent 
+                color analysis and augmented reality, we recommend decor that complements your room and allow you to preview 
                 it in real time before making a purchase.
                 </p>
             </div>
