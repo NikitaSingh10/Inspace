@@ -11,7 +11,34 @@ const productSchema = new mongoose.Schema({
     date:{type:Number, required:true},
     modelUrl: { type: String, default: "" },
     colorTags: { type: [String], default: [] },
-})
+
+        reviews: [
+          {
+            user: {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: "user",
+            },
+      
+            name: String,
+      
+            rating: Number,
+      
+            comment: String,
+          },
+        ],
+      
+        numReviews: {
+          type: Number,
+          default: 0,
+        },
+      
+        rating: {
+          type: Number,
+          default: 0,
+        },
+      
+      });
+
 
 const productModel =mongoose.models.product || mongoose.model("product", productSchema)
 

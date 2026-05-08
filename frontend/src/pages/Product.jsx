@@ -3,27 +3,89 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 import RelatedProducts from '../components/RelatedProducts';
+import axios from 'axios'
+import Rating from '../components/Rating'
+import { backendUrl } from '../config';
 
 const Product = () => {
 
 const{productId} = useParams();
-const{products,currency, addToCart} =useContext(ShopContext);
+const{products,currency, addToCart, token} =useContext(ShopContext);
 const[productData, setProductData]= useState(false);
 const[image , setImage] = useState("");
 const navigate = useNavigate();
 
-const fetchProductData = async() =>{
+const [rating, setRating] = useState(0);
+const [comment, setComment] = useState("");
 
-  products.map((item)=>{
-    if(item._id === productId){
-      setProductData(item)
-      setImage(item.image[0])
-      return null;
+const fetchProductData = async () => {
+
+  try {
+
+    const response = await axios.post(
+      backendUrl + "/api/product/single",
+      {
+        productId
+      }
+    );
+
+    if (response.data.success) {
+
+      setProductData(response.data.product);
+
+      setImage(response.data.product.image[0]);
+
     }
 
-  })
+  } catch (error) {
 
+    console.log(error);
+
+  }
 }
+
+const submitReview = async () => {
+
+  try {
+
+    const response = await axios.post(
+      backendUrl + `/api/product/${productData._id}/reviews`,
+      {
+        productId: productData._id,
+        rating,
+        comment,
+      },
+      {
+        headers: {
+          token,
+        },
+      }
+    );
+
+    if (response.data.success) {
+
+      alert("Review Submitted");
+
+      setRating(0);
+      setComment("");
+
+      fetchProductData();
+
+    } else {
+
+      alert(response.data.message);
+
+    }
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert("Error submitting review");
+
+  }
+};
+
 
 useEffect(()=>{
   fetchProductData();
@@ -97,13 +159,94 @@ useEffect(() => {
       <div className='mt-20'>
           <div className='flex '>
             <b className='border px-5 py-3 text-sm'>Description</b>
-            <p className='border px-5 py-3 text-sm'>Reviews</p>
+          
 
           </div>
           <div className='flex flex-col gap-4 border px-6 py-6 text-sm text-gray-500'>
             <p >An e-commerce website is an online platform for buying and selling products, services, and digital goods.</p>
             <p>E-commerce website typically displays a product catalog, shopping cart, secure checkout, user accounts, and customer service features to facilitate online transactions</p>
           </div>
+          {/* REVIEW FORM */}
+
+          <div className='mt-10'>
+
+    <h3 className='text-xl font-semibold mb-3'>
+      Write a Review
+    </h3>
+
+    <Rating
+      rating={rating}
+      setRating={setRating}
+    />
+
+    <textarea
+      placeholder="Write your review"
+      value={comment}
+      onChange={(e)=>setComment(e.target.value)}
+      rows="4"
+      className='border p-2 w-full mt-3'
+    />
+
+    <button
+      onClick={submitReview}
+      className='bg-black text-white px-5 py-2 mt-3'
+    >
+      Submit Review
+    </button>
+
+  </div>
+
+  {/* CUSTOMER REVIEWS*/ }
+
+  <div className='mt-10'>
+
+<h3 className='text-xl font-semibold mb-4'> Customer Reviews</h3>
+
+{productData?.reviews?.length > 0 ? (
+
+  productData.reviews.map((review)=>(
+
+    <div
+      key={review._id}
+      className='border-b py-4'
+    >
+
+      <p className='font-bold'>{review.name}</p>
+
+      <div>
+        {[1,2,3,4,5].map((star)=>(
+
+          <span
+            key={star}
+            style={{
+              color:
+                star <= review.rating
+                ? "#ffc107"
+                : "#e4e5e9"
+            }}
+          >
+            ★
+          </span>
+
+        ))}
+      </div>
+
+      <p className='text-gray-600 mt-2'>
+        {review.comment}
+      </p>
+
+    </div>
+
+  ))
+
+) : (
+
+  <p>No reviews yet</p>
+
+)}
+
+</div>
+
         </div>
         {/*display related products */}
         

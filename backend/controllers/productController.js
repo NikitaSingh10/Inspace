@@ -1,5 +1,6 @@
 import {v2 as cloudinary} from 'cloudinary'
 import productModel from '../models/productModel.js'
+import userModel from "../models/userModel.js";
 import path from "path";
 import { CANONICAL_COLORS } from '../utils/colorTags.js';
 
@@ -114,15 +115,29 @@ const removeProduct = async (req,res) => {
 
 //Funtion for single product info
 const singleProduct = async (req,res) => {
+
     try {
-        const {productId} = req.body
-        const product = await productModel.findById(productId)
-        res.json({success:true,product})
+  
+      const { productId } = req.body;
+  
+      const product = await productModel.findById(productId);
+  
+      res.json({
+        success: true,
+        product
+      });
+  
     } catch (error) {
-        console.log(error)
-        res.json({success:false, message:error.message})
+  
+      console.log(error);
+  
+      res.json({
+        success: false,
+        message: error.message
+      });
+  
     }
-}
+  }
 
 const updateProduct = async (req, res) => {
     try {
@@ -149,4 +164,80 @@ const getColorTags = (_req, res) => {
     res.json({ success: true, colorTags: CANONICAL_COLORS });
 };
 
-export{addProduct, listProduct, removeProduct, singleProduct, updateProduct, getColorTags};
+// review
+
+const addReview = async (req, res) => {
+
+    try {
+
+        const { productId, rating, comment, userId } = req.body;
+        const user = await userModel.findById(req.body.userId);
+        const product = await productModel.findById(productId);
+        console.log(product);
+        if (!product) {
+
+            return res.json({
+                success: false,
+                message: "Product not found",
+            });
+
+        }
+
+        const alreadyReviewed = product.reviews.find(
+            (r) =>
+              r.user &&
+              r.user.toString() === req.userId.toString()
+          );
+
+        if (alreadyReviewed) {
+
+            return res.json({
+                success: false,
+                message: "Already reviewed",
+            });
+
+        }
+
+        const review = {
+
+            user: user._id,
+
+            name: user.name,
+
+            rating: Number(rating),
+
+            comment,
+
+        };
+
+        product.reviews.push(review);
+
+        product.numReviews = product.reviews.length;
+
+        product.rating =
+
+            product.reviews.reduce(
+                (acc, item) => item.rating + acc,
+                0
+            ) / product.reviews.length;
+
+        await product.save();
+
+        res.json({
+            success: true,
+            message: "Review added",
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        res.json({
+            success: false,
+            message: error.message,
+        });
+
+    }
+};
+
+export{addProduct, listProduct, removeProduct, singleProduct, updateProduct, getColorTags, addReview};
