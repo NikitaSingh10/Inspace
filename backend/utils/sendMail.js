@@ -1,9 +1,18 @@
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const sendSubscribeMail = async (email) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    throw new Error(
+      "Email is not configured (missing EMAIL_USER / EMAIL_PASS env vars)."
+    );
+  }
+
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -11,6 +20,9 @@ const sendSubscribeMail = async (email) => {
       pass: process.env.EMAIL_PASS,
     },
   });
+
+  const offerPath = path.join(__dirname, "..", "files", "offer.pdf");
+  const hasOfferAttachment = fs.existsSync(offerPath);
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -20,12 +32,16 @@ const sendSubscribeMail = async (email) => {
       <h2>Thanks for subscribing!</h2>
       <p>You’ll now receive updates from Inspace.</p>
     `,
-    attachments: [
-      {
-        filename: "offer.pdf",
-        path: "./files/offer.pdf", // file path in your backend
-      },
-    ],
+    ...(hasOfferAttachment
+      ? {
+          attachments: [
+            {
+              filename: "offer.pdf",
+              path: offerPath,
+            },
+          ],
+        }
+      : {}),
   };
   console.log("Sending mail to:", email);
   await transporter.sendMail(mailOptions);

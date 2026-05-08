@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { backendUrl } from '../config';
 
 const NewsletterBox = () => {
 
@@ -9,7 +10,7 @@ const NewsletterBox = () => {
         event.preventDefault();
 
         try {
-            const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/subscribe`, { email });
+            const res = await axios.post(`${backendUrl}/api/subscribe`, { email });
             alert(res.data.message);
             setEmail(""); // clear input
         } catch (error) {
