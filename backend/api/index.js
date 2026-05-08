@@ -8,6 +8,7 @@ import productRouter from '../routes/productRoute.js'
 import cartRouter from '../routes/cartRoute.js'
 import orderRouter from '../routes/orderRoute.js'
 import aiRouter from '../routes/aiRouter.js'
+import subscribeRouter from '../routes/subscribeRoute.js'
 
 // app config
 const app = express()
@@ -68,6 +69,7 @@ app.use('/api/product', productRouter)
 app.use('/api/cart', cartRouter)
 app.use('/api/order', orderRouter)
 app.use('/api/ai', aiRouter)
+app.use('/api/subscribe', subscribeRouter)
 
 app.get('/', (req, res) => {
     res.send("API Working")
